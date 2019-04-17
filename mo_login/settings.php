@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Contains version related information.
+ *
+ * @copyright   2017  miniOrange
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL v3 or later, see license.txt
+ * @package     auth_mo_login
+ */
 // @codingStandardsIgnoreLine
 require_once(__DIR__ . '/../../config.php');
 if ($ADMIN->fulltree) {

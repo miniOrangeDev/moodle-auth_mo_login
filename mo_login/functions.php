@@ -20,15 +20,19 @@
  * Gives result of saml response.
  *
  * @copyright   2017  miniOrange
- * @category    authentication
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL v3 or later, see license.txt
- * @package     mo_login
+ * @package     auth_mo_login
  */
 // @codingStandardsIgnoreLine
 require_once(__DIR__ . '/../../config.php');
 defined('MOODLE_INTERNAL') || die();
 $config = get_config('auth/mo_login');
 // Config provide access to all data saved in database of mld_config table.
+/**
+ * Show test result
+ * @param String $useremail String
+ * @param String $attrs String
+ */
 function mo_login_show_test_result($useremail, $attrs) {
     ob_end_clean();
     echo '<div style="font-family:Calibri;padding:0 3%;">';
@@ -88,6 +92,14 @@ function mo_login_show_test_result($useremail, $attrs) {
             color: #FFF;"type="button" value="Done" onClick="self.close();"></div>';
     exit;
 }
+
+/**
+ * Create authn Request
+ * @param String $acsurl String
+ * @param String $issuer String
+ * @param string $forceauthn AUtn URL
+ * @return string
+ */
 function create_authn_request($acsurl, $issuer, $forceauthn = 'false') {
 
     $requestxmlstr = '<?xml version="1.0" encoding="UTF-8"?>' .
@@ -104,6 +116,17 @@ function create_authn_request($acsurl, $issuer, $forceauthn = 'false') {
     $urlencoded = urlencode($baseencodedstr);
     return $urlencoded;
 }
+
+/**
+ * Login User
+ * @param String $accountmatcher String
+ * @param String $userssaml String
+ * @param bool $samlcreate Create
+ * @param bool $samlupdate Update
+ * @return bool|mixed|stdClass|void
+ * @throws dml_exception
+ * @throws moodle_exception
+ */
 function auth_mo_login_authenticate_user_login($accountmatcher, $userssaml, $samlcreate=false, $samlupdate=false) {
     global $CFG, $DB;
     $authsenabled = get_enabled_auth_plugins();
@@ -191,6 +214,11 @@ function auth_mo_login_authenticate_user_login($accountmatcher, $userssaml, $sam
 
     return $user;
 }
+
+/**
+ * Get Random Password
+ * @return string
+ */
 function get_random_password() {
     $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     $pass = array();
@@ -202,6 +230,11 @@ function get_random_password() {
     return implode($pass);
 }
 // Timestamp for instant issuer.
+/**
+ * Generate Timestamp
+ * @param null $instant Instant
+ * @return false|string
+ */
 function generate_timestamp($instant = null) {
     if ($instant === null) {
         $instant = time();
@@ -209,10 +242,19 @@ function generate_timestamp($instant = null) {
     return gmdate('Y-m-d\TH:i:s\Z', $instant);
 }
 // Id for saml request.
+/**
+ * Generate ID
+ * @return string
+ */
 function generate_id() {
     return '_' .string_to_hex(generate_random_bytes(21));
 }
 // Value conversion method for string_to_hex.
+/**
+ * String to HEX
+ * @param String $bytes Bytes
+ * @return string
+ */
 function string_to_hex($bytes) {
     $ret = '';
     for ($i = 0; $i < strlen($bytes); $i++) {
@@ -221,10 +263,22 @@ function string_to_hex($bytes) {
     return $ret;
 }
 // Generate_random_bytes produce random bytes of given length.
+/**
+ * Generate Random bytes
+ * @param Length $length Length
+ * @param bool $fallback Fallback
+ * @return string
+ */
 function generate_random_bytes($length, $fallback = true) {
     return openssl_random_pseudo_bytes($length);
 }
 // Here we are checking Mapping attributes in plugin to coming saml attributes.
+/**
+ * Check mapping
+ * @param Attribute $attrs Attribvutes
+ * @param String $relaystate Go to URL
+ * @param int $sessionindex Index
+ */
 function mo_login_checkmapping($attrs, $relaystate, $sessionindex) {
     try {
 

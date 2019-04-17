@@ -20,9 +20,8 @@
  * Redirect here for saml request and response purpose
  *
  * @copyright   2017  miniOrange
- * @category    authentication
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL v3 or later, see license.txt
- * @package     mo_login
+ * @package     auth_mo_login
  */
 // @codingStandardsIgnoreLine
 require_once(__DIR__ . '/../../config.php');

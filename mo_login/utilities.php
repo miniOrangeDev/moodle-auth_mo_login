@@ -18,9 +18,8 @@
  * This library is miniOrange Authentication Service.
  *
  * @copyright 2017  miniOrange
- * @category  authentication
  * @license   http://www.gnu.org/copyleft/gpl.html GNU/GPL, see license.txt
- * @package   mo_login
+ * @package   auth_mo_login
  */
 // @codingStandardsIgnoreLine
 require_once('../../config.php');
@@ -28,18 +27,26 @@ require_once('xmlseclibs.php');
 /**
  * Auth external functions
  *
- * @package   mo_login
- * @category  utilities
+ * @package   auth_mo_login
  * @copyright 2017 miniOrange
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class utilities
 {
 
+    /**
+     * Generate ID
+     * @return string
+     */
     public static function generate_id() {
         return '_' . self::string_to_hex(self::generate_random_bytes(21));
     }
 
+    /**
+     * String to Hex
+     * @param String $bytes Bytes
+     * @return string
+     */
     public static function string_to_hex($bytes) {
         $ret = '';
         for ($i = 0; $i < strlen($bytes); $i++) {
@@ -48,10 +55,23 @@ class utilities
         return $ret;
     }
 
+    /**
+     * Generate Random Bytes
+     * @param String $length Length
+     * @param bool $fallback fallback
+     * @return string
+     */
     public static function generate_random_bytes($length, $fallback = true) {
         return openssl_random_pseudo_bytes($length);
     }
 
+    /**
+     * Create Auth REquest
+     * @param String $acsurl ACS
+     * @param String $issuer ISSUER
+     * @param string $forceauthn ForceAuth
+     * @return string
+     */
     public static function create_authn_request($acsurl, $issuer, $forceauthn = 'false') {
         $requestxmlstr = '<?xml version="1.0" encoding="UTF-8"?>' .
                         '<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ID="' . self::generate_id() .
@@ -69,6 +89,11 @@ class utilities
         return $urlencoded;
     }
 
+    /**
+     * Generate timeStamp
+     * @param null $instant String
+     * @return false|string
+     */
     public static function generate_timestamp($instant = null) {
         if ($instant === null) {
             $instant = time();
@@ -76,6 +101,12 @@ class utilities
         return gmdate('Y-m-d\TH:i:s\Z', $instant);
     }
 
+    /**
+     * XZquery
+     * @param DOMNode $node Node
+     * @param String $query Node
+     * @return array
+     */
     public static function xpquery(DOMNode $node, $query) {
         static $xpcache = null;
 
@@ -104,6 +135,11 @@ class utilities
         return $ret;
     }
 
+    /**
+     * Parse Name ID
+     * @param DOMElement $xml XML
+     * @return array
+     */
     public static function parse_name_id(DOMElement $xml) {
         $ret = array('Value' => trim($xml->textContent));
 
@@ -116,6 +152,11 @@ class utilities
         return $ret;
     }
 
+    /**
+     * XS data time
+     * @param String $time String
+     * @return int
+     */
     public static function xs_date_time_to_timestamp($time) {
         $matches = array();
 
@@ -141,6 +182,13 @@ class utilities
         return $ts;
     }
 
+    /**
+     * Extract Strings
+     * @param DOMElement $parent parent
+     * @param String $namespaceuri String
+     * @param String $localname String
+     * @return array
+     */
     public static function extract_strings(DOMElement $parent, $namespaceuri, $localname) {
 
         $ret = array();
@@ -154,6 +202,12 @@ class utilities
         return $ret;
     }
 
+    /**
+     * Validate Element
+     * @param DOMElement $root Root
+     * @return array|bool
+     * @throws Exception
+     */
     public static function validate_element(DOMElement $root) {
 
         // Create an XML security object.
@@ -214,6 +268,12 @@ class utilities
             );
         return $ret;
     }
+
+    /**
+     * Validate Signature
+     * @param array $info Info
+     * @param xml_security_key $key Key
+     */
     public static function validate_signature(array $info, xml_security_key $key) {
         $objxmlsecdsig = $info['Signature'];
 
@@ -240,6 +300,14 @@ class utilities
         }
     }
 
+    /**
+     * Cast Key
+     * @param xml_security_key $key Key
+     * @param String $algorithm String
+     * @param string $type String
+     * @return xml_security_key
+     * @throws Exception
+     */
     public static function cast_key(xml_security_key $key, $algorithm, $type = 'public') {
 
         // Do nothing if algorithm is already the type of the key.
@@ -262,8 +330,17 @@ class utilities
         return $newkey;
     }
 
+    /**
+     * Process Response
+     * @param String $currenturl URL
+     * @param String $certfingerprint Certificate
+     * @param String $signaturedata Signature
+     * @param saml_response_class $response Response
+     * @return bool
+     * @throws Exception
+     */
     public static function process_response($currenturl, $certfingerprint, $signaturedata,
-        saml_response_class $response
+                                            saml_response_class $response
     ) {
 
         $assertion = current($response->get_assertions());
@@ -306,6 +383,13 @@ class utilities
         return $responsesigned;
     }
 
+    /**
+     * Check Sign
+     * @param String $certfingerprint String
+     * @param String $signaturedata String
+     * @return bool
+     * @throws Exception
+     */
     public static function check_sign($certfingerprint, $signaturedata) {
         $certificates = $signaturedata['Certificates'];
 
@@ -340,6 +424,13 @@ class utilities
 
     }
 
+    /**
+     * Validate Issuer
+     * @param saml_response_class $samlresponse Samlresponse
+     * @param String $spentityid String
+     * @param String $issuertovalidateagainst String
+     * @return bool
+     */
     public static function validate_issuer_and_audience($samlresponse, $spentityid, $issuertovalidateagainst) {
         $issuer = current($samlresponse->get_assertions())->get_issuer();
         $assertion = current($samlresponse->get_assertions());
@@ -359,6 +450,12 @@ class utilities
         }
     }
 
+    /**
+     * FInd certificate
+     * @param array $certfingerprints Prints
+     * @param array $certificates Prints
+     * @return string
+     */
     private static function find_certificate(array $certfingerprints, array $certificates) {
 
         $candidates = array();
@@ -389,7 +486,7 @@ class utilities
          *
          * @param  DOMElement       $encrypteddata The encrypted data.
          * @param  xml_security_key $inputkey      The decryption key.
-         * @param  array            &$blacklist    Blacklisted decryption algorithms.
+         * @param  array            $blacklist    Blacklisted decryption algorithms.
          * @return DOMElement     The decrypted element.
          * @throws Exception
          */
@@ -520,6 +617,7 @@ class utilities
      * @param  DOMElement       $encrypteddata The encrypted data.
      * @param  xml_security_key $inputkey      The decryption key.
      * @param  array            $blacklist     Blacklisted decryption algorithms.
+     * @param xml_security_key $alternatekey Alternate key
      * @return DOMElement     The decrypted element.
      * @throws Exception
      */
@@ -549,13 +647,7 @@ class utilities
     /**
      * Generates the metadata of the SP based on the settings
      *
-     * @param string    $sp            The SP data
-     * @param string    $authnsign     authnRequestsSigned attribute
-     * @param string    $wsign         wantAssertionsSigned attribute
-     * @param DateTime  $validUntil    Metadata's valid time
-     * @param Timestamp $cacheDuration Duration of the cache in seconds
-     * @param array     $contacts      Contacts info
-     * @param array     $organization  Organization ingo
+     * @param string    $siteurl            The SP data
      *
      * @return string SAML Metadata XML
      */
@@ -584,6 +676,12 @@ class utilities
         $xml->save(plugins_url()."/miniorange-saml-20-single-sign-on/sp-metadata.xml");
     }
 
+    /**
+     * Get mapped groups
+     * @param String $samlparams String
+     * @param String $samlgroups String
+     * @return array
+     */
     public static function get_mapped_groups($samlparams, $samlgroups) {
             $groups = array();
 
@@ -617,6 +715,11 @@ class utilities
     }
 
 
+    /**
+     * Get encryption algorithm
+     * @param String $method Method
+     * @return string
+     */
     public static function get_encryption_algorithm($method) {
         switch($method) {
             case 'http://www.w3.org/2001/04/xmlenc#tripledes-cbc':
@@ -669,7 +772,12 @@ class utilities
         }
     }
 
-    public static function sanitize_certificate( $certificate ) {
+    /**
+     * Sanitize certificate
+     * @param String $certificate Cert
+     * @return mixed|string|string[]|null
+     */
+    public static function sanitize_certificate($certificate ) {
         $certificate = preg_replace("/[\r\n]+/", "", $certificate);
         $certificate = str_replace("-", "", $certificate);
         $certificate = str_replace("BEGIN CERTIFICATE", "", $certificate);
@@ -680,7 +788,12 @@ class utilities
         return $certificate;
     }
 
-    public static function desanitize_certificate( $certificate ) {
+    /**
+     * Desanitize Certificte
+     * @param String $certificate String
+     * @return mixed|string|string[]|null
+     */
+    public static function desanitize_certificate($certificate ) {
         $certificate = preg_replace("/[\r\n]+/", "", $certificate);
         $certificate = str_replace("-----BEGIN CERTIFICATE-----", "", $certificate);
         $certificate = str_replace("-----END CERTIFICATE-----", "", $certificate);

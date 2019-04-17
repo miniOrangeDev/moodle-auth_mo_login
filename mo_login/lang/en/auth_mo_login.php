@@ -20,9 +20,8 @@
  * Contains language oriented things.
  *
  * @copyright   2017  miniOrange
- * @category    dictionary
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL v3 or later, see license.txt
- * @package     mo_login
+ * @package     auth_mo_login
  */
 $string['pluginname'] = 'Login with miniOrange';
 $string['auth_mo_logindescription'] = 'Setup SSO';

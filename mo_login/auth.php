@@ -20,9 +20,8 @@
  * Contains authentication method.
  *
  * @copyright   2017  miniOrange
- * @category    authentication
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL v3 or later, see license.txt
- * @package     mo_login
+ * @package     auth_mo_login
  */
 // @codingStandardsIgnoreLine
 require_once(__DIR__ . '/../../config.php');
@@ -32,16 +31,26 @@ require_once($CFG->libdir.'/authlib.php');
 /**
  * This class contains authentication plugin method
  *
- * @package    mo_login
- * @category   authentication
+ * @package    auth_mo_login
  * @copyright  2017 miniOrange
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class auth_plugin_mo_login extends auth_plugin_base {
 
+    /**
+     *
+     */
     const PLUGIN_NAME = 'auth/mo_login';
+    /**
+     *
+     */
     const ATTRIBUTES = array('firstname', 'lastname');
     // Constructor which has authtype, roleauth, and config variable initialized.
+
+    /**
+     * auth_plugin_mo_login constructor.
+     * @throws dml_exception
+     */
     public function __construct() {
         $this->authtype = 'mo_login';
         $this->roleauth = 'auth_mo_login';
@@ -49,6 +58,13 @@ class auth_plugin_mo_login extends auth_plugin_base {
     }
 
     // User login return boolean value after checking username and password combination.
+
+    /**
+     * User Login
+     * @param string $username Username
+     * @param string $password Password
+     * @return bool
+     */
     public function user_login($username, $password) {
         global $SESSION;
         if (isset($SESSION->mo_login_attributes)) {
@@ -63,6 +79,12 @@ class auth_plugin_mo_login extends auth_plugin_base {
     *get_attributes() method called to get all attributes variable mapped in plugin.
     *It will return $user array in which all attributes value according to mapped value.
     */
+    /**
+     * Get User INfo
+     * @param null $username String
+     * @return array|mixed
+     * @throws dml_exception
+     */
     public function get_userinfo($username = null) {
         global $SESSION;
 
@@ -85,6 +107,10 @@ class auth_plugin_mo_login extends auth_plugin_base {
     }
 
 
+    /**
+     * Get custom attributes
+     * @return array
+     */
     public function get_custom_attributes_mapping() {
         $customattributemapping = array();
         $customattributecount = array_key_exists('mo_login_custom_attribute_mapping_count', $this->config) ?
@@ -99,6 +125,11 @@ class auth_plugin_mo_login extends auth_plugin_base {
         return $customattributemapping;
     }
     // Here we are assigning  role to user which is selected in role mapping.
+
+    /**
+     * Obtain Roles
+     * @return string
+     */
     public function obtain_roles() {
         global $SESSION;
         $roles = 'Manager';
@@ -111,6 +142,13 @@ class auth_plugin_mo_login extends auth_plugin_base {
 
 
     // Sync roles assigne the role for new user if role mapping done in default role.
+
+    /**
+     * Sync ROles
+     * @param object $user User
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function sync_roles($user) {
         global $CFG, $DB, $SESSION;
         $defaultrole = get_config('auth_mo_login', 'default_role_map');
@@ -144,6 +182,10 @@ class auth_plugin_mo_login extends auth_plugin_base {
     }
     // Returns true if this authentication plugin is internal.
     // Internal plugins use password hashes from Moodle user table for authentication.
+    /**
+     * Is Internal
+     * @return bool
+     */
     public function is_internal() {
         return false;
     }
@@ -151,18 +193,37 @@ class auth_plugin_mo_login extends auth_plugin_base {
     // This function automatically returns the opposite boolean of what is_internal() returns.
     // Returning true means MD5 password hashes will be stored in the user table.
     // Returning false means flag 'not_cached' will be stored there instead.
+    /**
+     * Prevent Local passwords
+     * @return bool
+     */
     public function prevent_local_passwords() {
         return true;
     }
     // Returns true if this authentication plugin can change users' password.
+
+    /**
+     * Can CHange Password
+     * @return bool
+     */
     public function can_change_password() {
         return false;
     }
     // Returns true if this authentication plugin can edit the users' profile.
+
+    /**
+     * Can edit profile
+     * @return bool
+     */
     public function can_edit_profile() {
         return true;
     }
     // Hook for overriding behaviour of login page.
+
+    /**
+     * Login Page Hook
+     * @throws moodle_exception
+     */
     public function loginpage_hook() {
         global $CFG;
         $CFG->nolastloggedin = true;
@@ -182,6 +243,11 @@ class auth_plugin_mo_login extends auth_plugin_base {
         }
     }
     // Hook for overriding behaviour of logout page.
+
+    /**
+     * Logout Page Hook
+     * @throws moodle_exception
+     */
     public function logoutpage_hook() {
         global $SESSION, $CFG;
         $logouturl = $CFG->wwwroot.'/login/index.php?saml_sso=false';
@@ -190,7 +256,12 @@ class auth_plugin_mo_login extends auth_plugin_base {
         redirect($logouturl);
     }
 
-    public function sanitize_certificate( $certificate ) {
+    /**
+     * Sanitize certificate
+     * @param String $certificate String
+     * @return mixed|string|string[]|null
+     */
+    public function sanitize_certificate($certificate ) {
         $certificate = preg_replace("/[\r\n]+/", '', $certificate);
         $certificate = str_replace( "-", '', $certificate );
         $certificate = str_replace( "BEGIN CERTIFICATE", '', $certificate );
@@ -202,6 +273,9 @@ class auth_plugin_mo_login extends auth_plugin_base {
     }
     // Getting customer which is already created at host for login purpose.
     // The page show in test configuration page.
+    /**
+     * Test Setttings
+     */
     public function test_settings() {
         global $CFG;?>
 
@@ -214,6 +288,11 @@ class auth_plugin_mo_login extends auth_plugin_base {
 <?php
     }
 
+    /**
+     * Login Page IDP list
+     * @param string $wantsurl List of URLS
+     * @return array
+     */
     public function loginpage_idp_list($wantsurl) {
         global $CFG;
         $idplist[] = [

@@ -18,14 +18,13 @@
  * Contains version related information.
  *
  * @copyright   2017  miniOrange
- * @category    document
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL v3 or later, see license.txt
- * @package     mo_login
+ * @package     auth_mo_login
  */
 defined('MOODLE_INTERNAL') || die();
 $plugin->requires = 2016052300;   // Requires Moodle 3.1 or later.
-$plugin->release = 'v1.0-r2';
+$plugin->release = 'v1.0-r3';
 $plugin->component = 'auth_mo_login';
-$plugin->version = 2019041201;    // YYYYMMDDXX.
+$plugin->version = 2019041701;    // YYYYMMDDXX.
 $plugin->cron = 0;     // Time in sec.
 $plugin->maturity = MATURITY_STABLE;

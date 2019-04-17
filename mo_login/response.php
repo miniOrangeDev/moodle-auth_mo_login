@@ -20,9 +20,8 @@
  * Contains validation of saml element.
  *
  * @copyright   2017  miniOrange
- * @category    authentication
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL v3 or later, see license.txt
- * @package     mo_login
+ * @package     auth_mo_login
  */
 defined('MOODLE_INTERNAL') || die();
 require_once('assertion.php');
@@ -33,23 +32,30 @@ require_once('assertion.php');
 /**
  * Auth external functions
  *
- * @package    mo_login
- * @category   response
+ * @package    auth_mo_login
  * @copyright  2017 miniOrange
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class saml_response_class {
     /**
+     * @var null
      * The assertions in this response.
      */
     private $assertions;
 
     /**
+     * @var null
      * The destination URL in this response.
      */
     private $destination;
 
+    /**
+     * @var mixed
+     */
     private $certificates;
+    /**
+     * @var array|bool
+     */
     private $signaturedata;
 
     /**
@@ -92,7 +98,7 @@ class saml_response_class {
     /**
      * Retrieve the assertions in this response.
      *
-     * @return saml_assertion_class[]|SAML2_EncryptedAssertion[]
+     * @return saml_assertion_class[]|SAML2_EncryptedAssertion[] Get Assertion
      */
     public function get_assertions() {
         return $this->assertions;
@@ -107,6 +113,10 @@ class saml_response_class {
         $this->assertions = $assertions;
     }
 
+    /**
+     * Get Destination
+     * @return string
+     */
     public function get_destination() {
         return $this->destination;
     }
@@ -126,10 +136,18 @@ class saml_response_class {
         return $root;
     }
 
+    /**
+     * Get Certificate
+     * @return mixed
+     */
     public function get_certificates() {
         return $this->certificates;
     }
 
+    /**
+     * Get Signature data
+     * @return array|bool
+     */
     public function get_signature_data() {
         return $this->signaturedata;
     }
