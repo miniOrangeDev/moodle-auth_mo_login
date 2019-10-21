@@ -33,63 +33,30 @@ $config = get_config('auth/mo_login');
  * @param String $useremail String
  * @param String $attrs String
  */
-function mo_login_show_test_result($useremail, $attrs) {
+function auth_mo_login_show_test_result($useremail, $attrs) {
     ob_end_clean();
     echo '<div style="font-family:Calibri;padding:0 3%;">';
     if (!empty($useremail)) {
-        echo '<div style="color: #3c763d;
-                background-color: #dff0d8;
-                padding:2%;
-                margin-bottom:20px;
-                text-align:center;
-                border:1px solid #AEDB9A;
-                font-size:18pt;">TEST SUCCESSFUL</div>
-                <div style="display:block;
-                text-align:center;
-                margin-bottom:4%;"><img style="width:15%;"src="'. 'images/green_check.png"></div>';
+        echo '<div >TEST SUCCESSFUL</div>
+                <div ></div>';
     }
         echo '<span style="font-size:14pt;">
                 <b>Hello</b>, '.$useremail.'</span><br/>
-                <p style="font-weight:bold;
-                font-size:14pt;margin-left:1%;">ATTRIBUTES RECEIVED:</p>
-                <table style="border-collapse:collapse;
-                border-spacing:0;
-                display:table;width:100%;
-                font-size:14pt;
-                background-color:#EDEDED;">
-                <tr style="text-align:center;"><td style="font-weight:bold;
-                border:2px solid #949090;
-                padding:2%;">ATTRIBUTE NAME</td><td style="font-weight:bold;
-                padding:2%;border:2px solid #949090; word-wrap:break-word;">ATTRIBUTE VALUE</td></tr>';
+                <p >ATTRIBUTES RECEIVED:</p>
+                <table >
+                <tr ><td >ATTRIBUTE NAME</td><td>ATTRIBUTE VALUE</td></tr>';
     if (!empty($attrs)) {
         foreach ($attrs as $key => $value) {
             $value = is_array($value) ? $value : array(0 => $value);
             echo "
-            <tr><td style='font-weight:bold;
-                        border:2px solid #949090;
-                        padding:2%;'>" .$key . "</td>
-                <td style='padding:2%;
-                        border:2px solid #949090;
-                        word-wrap:break-word;'> " .implode("<hr/>" , $value). " </td></tr> ";
+            <tr><td>" .$key . "</td>
+                <td> " .implode("<hr/>" , $value). " </td></tr> ";
         }
     } else {
         echo "No Attributes Received.";
     }
     echo '</table></div>';
-    echo '<div style="margin:3%;
-            display:block;
-            text-align:center;"><input style="padding:1%;
-            width:100px;
-            background: #0091CD none repeat scroll 0% 0%;
-            cursor: pointer;font-size:15px;
-            border-width: 1px;
-            border-style: solid;
-            border-radius: 3px;
-            white-space: nowrap;
-            box-sizing: border-box;
-            border-color: #0073AA;
-            box-shadow: 0px 1px 0px rgba(120, 200, 230, 0.6) inset;
-            color: #FFF;"type="button" value="Done" onClick="self.close();"></div>';
+    echo '<div ><input type="button" value="Done" onClick="self.close();"></div>';
     exit;
 }
 
@@ -100,11 +67,11 @@ function mo_login_show_test_result($useremail, $attrs) {
  * @param string $forceauthn AUtn URL
  * @return string
  */
-function create_authn_request($acsurl, $issuer, $forceauthn = 'false') {
+function auth_mo_login_create_authn_request($acsurl, $issuer, $forceauthn = 'false') {
 
     $requestxmlstr = '<?xml version="1.0" encoding="UTF-8"?>' .
-                    '<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ID="' . generate_id() .
-                    '" Version="2.0" IssueInstant="' . generate_timestamp() . '"';
+                    '<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" ID="' . auth_mo_login_generate_id() .
+                    '" Version="2.0" IssueInstant="' . auth_mo_login_generate_timestamp() . '"';
     if ( $forceauthn == 'true') {
         $requestxmlstr .= ' ForceAuthn="true"';
     }
@@ -130,7 +97,7 @@ function create_authn_request($acsurl, $issuer, $forceauthn = 'false') {
 function auth_mo_login_authenticate_user_login($accountmatcher, $userssaml, $samlcreate=false, $samlupdate=false) {
     global $CFG, $DB;
     $authsenabled = get_enabled_auth_plugins();
-    $password = get_random_password();
+    $password = auth_mo_login_get_random_password();
     $created = false;
     if ($user = get_complete_user_data($accountmatcher, $userssaml[$accountmatcher])) {
         if ($user->auth == 'manual') {
@@ -219,7 +186,7 @@ function auth_mo_login_authenticate_user_login($accountmatcher, $userssaml, $sam
  * Get Random Password
  * @return string
  */
-function get_random_password() {
+function auth_mo_login_get_random_password() {
     $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     $pass = array();
     $alphalength = strlen($alphabet) - 1;
@@ -235,7 +202,7 @@ function get_random_password() {
  * @param null $instant Instant
  * @return false|string
  */
-function generate_timestamp($instant = null) {
+function auth_mo_login_generate_timestamp($instant = null) {
     if ($instant === null) {
         $instant = time();
     }
@@ -246,8 +213,8 @@ function generate_timestamp($instant = null) {
  * Generate ID
  * @return string
  */
-function generate_id() {
-    return '_' .string_to_hex(generate_random_bytes(21));
+function auth_mo_login_generate_id() {
+    return '_' .auth_mo_login_string_to_hex(auth_mo_login_generate_random_bytes(21));
 }
 // Value conversion method for string_to_hex.
 /**
@@ -255,7 +222,7 @@ function generate_id() {
  * @param String $bytes Bytes
  * @return string
  */
-function string_to_hex($bytes) {
+function auth_mo_login_string_to_hex($bytes) {
     $ret = '';
     for ($i = 0; $i < strlen($bytes); $i++) {
         $ret .= sprintf('%02x', ord($bytes[$i]));
@@ -269,7 +236,7 @@ function string_to_hex($bytes) {
  * @param bool $fallback Fallback
  * @return string
  */
-function generate_random_bytes($length, $fallback = true) {
+function auth_mo_login_generate_random_bytes($length, $fallback = true) {
     return openssl_random_pseudo_bytes($length);
 }
 // Here we are checking Mapping attributes in plugin to coming saml attributes.
@@ -279,7 +246,7 @@ function generate_random_bytes($length, $fallback = true) {
  * @param String $relaystate Go to URL
  * @param int $sessionindex Index
  */
-function mo_login_checkmapping($attrs, $relaystate, $sessionindex) {
+function auth_mo_login_checkmapping($attrs, $relaystate, $sessionindex) {
     try {
 
         // Attribute mapping.
@@ -292,7 +259,7 @@ function mo_login_checkmapping($attrs, $relaystate, $sessionindex) {
                 $useremail = $attrs['NameID'][0];
             }
 
-            mo_login_show_test_result($useremail,  $attrs);
+            auth_mo_login_show_test_result($useremail,  $attrs);
             // It will change with version.
         }
     } catch (Exception $e) {

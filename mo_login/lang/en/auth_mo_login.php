@@ -37,3 +37,4 @@ $setting['attribute_mapping_heading'] = 'Attribute Mapping';
 $setting['serviceprovider'] = 'Service Provider';
 $setting['serviceproviderdescription'] = 'Information to be provided on IDP side';
 $setting['serviceproviderinfo'] = 'Mukabla';
+$string['privacy:metadata'] = 'The miniOrange Login authentication plugin does not store any personal data.';

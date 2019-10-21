@@ -26,18 +26,17 @@
 // @codingStandardsIgnoreLine
 require_once(__DIR__ . '/../../config.php');
 
-require_once('response.php');
-require_once('utilities.php');
-require_once('assertion.php');
+require_once('responseauthmologin.php');
+require_once('auth_mo_login_utilities.php');
+require_once('assertionauthmologin.php');
 require_once('functions.php');
 global $CFG, $USER, $SESSION;
-global $_POST, $_GET, $_SERVER;
-if (isset($_GET['wantsurl'])) {
-    $wantsurl = $SESSION->wantsurl = clean_param($_GET['wantsurl'], PARAM_URL);
-}
-if (empty($wantsurl) && isset($SESSION->wantsurl)) {
-    $wantsurl = $SESSION->wantsurl;
-}
+
+$wantsurl = optional_param('wantsurl', '', PARAM_LOCALURL);
+
+
+
+
 $pluginconfig = get_config('auth_mo_login');
 // This condition showing the request for the saml.
 // If SAMLResponse is not set or testConfig requested means it will consruct saml request.
@@ -48,7 +47,7 @@ if (!isset($_POST['SAMLResponse']) || (isset($_REQUEST['option'])&& $_REQUEST['o
         $sendrelaystate = 'testValidate';
         // Checking the purpose of saml request.
     } else if ( isset( $_REQUEST['redirect_to'])) {
-        $sendrelaystate = $_REQUEST['redirect_to'];
+        $sendrelaystate = required_param('redirect_to', PARAM_URL);
     } else {
         $sendrelaystate = $CFG->wwwroot.'/auth/mo_login/index.php';
         // Sendrelaystate set above.
@@ -62,7 +61,7 @@ if (!isset($_POST['SAMLResponse']) || (isset($_REQUEST['option'])&& $_REQUEST['o
     // Plugin base url.
     $forceauthn = 'false';
     // Disabled forceauthn.
-    $samlrequest = create_authn_request($acsurl, $issuer, $forceauthn);
+    $samlrequest = auth_mo_login_create_authn_request($acsurl, $issuer, $forceauthn);
     // Calling method presentin functions.php for consructing saml request.
     $redirect = $ssourl;
     if (strpos($ssourl, '?') !== false) {
@@ -80,12 +79,9 @@ if ( array_key_exists('SAMLResponse', $_POST) && !empty($_POST['SAMLResponse']))
     // Reading saml response and extracting useful data.
 
 
-    $response = $_POST['SAMLResponse'];
-    if (array_key_exists('RelayState', $_POST) && !empty( $_POST['RelayState'] ) && $_POST['RelayState'] != '/') {
-        $relaystate = $_POST['RelayState'];
-    } else {
-        $relaystate = '';
-    }
+    $response = required_param('SAMLResponse', PARAM_RAW);
+    $relaystate = optional_param('RelayState', '', PARAM_URL);
+
     $response = base64_decode($response);
 
     $document = new DOMDocument();
@@ -96,23 +92,25 @@ if ( array_key_exists('SAMLResponse', $_POST) && !empty($_POST['SAMLResponse']))
 
     $certfpfromplugin = xml_security_key::get_raw_thumbprint($certfromplugin);
     $acsurl = $CFG->wwwroot.'/auth/mo_login/index.php';
-    $samlresponse = new saml_response_class($samlresponsexml);
+    $samlresponse = new auth_mo_login_saml_response_class($samlresponsexml);
     $responsesignaturedata = $samlresponse->get_signature_data();
     $assertionsignaturedata = current($samlresponse->get_assertions())->get_signature_data();
     $certfpfromplugin = iconv('UTF-8', "CP1252//IGNORE", $certfpfromplugin);
     $certfpfromplugin = preg_replace('/\s+/', '', $certfpfromplugin);
 
 
-
     if (!empty($responsesignaturedata)) {
-        $validsignature = utilities::process_response($acsurl, $certfpfromplugin, $responsesignaturedata, $samlresponse);
+
+        $validsignature = auth_mo_login_utilities::process_response
+        ($acsurl, $certfpfromplugin, $responsesignaturedata, $samlresponse);
         if ($validsignature === false) {
             echo 'Invalid signature in the SAML Response.';
             exit;
         }
     }
     if (!empty($assertionsignaturedata)) {
-        $validsignature = utilities::process_response($acsurl, $certfpfromplugin, $assertionsignaturedata, $samlresponse);
+        $validsignature = auth_mo_login_utilities::
+        process_response($acsurl, $certfpfromplugin, $assertionsignaturedata, $samlresponse);
         if ($validsignature === false) {
             echo 'Invalid signature in the SAML Assertion.';
             exit;
@@ -120,7 +118,7 @@ if ( array_key_exists('SAMLResponse', $_POST) && !empty($_POST['SAMLResponse']))
     }
     $issuer = $pluginconfig->entity_id;
     $spentityid = $CFG->wwwroot;
-    utilities::validate_issuer_and_audience($samlresponse, $spentityid, $issuer);
+    auth_mo_login_utilities::validate_issuer_and_audience($samlresponse, $spentityid, $issuer);
     $ssoemail = current(current($samlresponse->get_assertions())->get_name_id());
     $attrs = current($samlresponse->get_assertions())->get_attributes();
 
@@ -133,7 +131,7 @@ if ( array_key_exists('SAMLResponse', $_POST) && !empty($_POST['SAMLResponse']))
     $pluginconfig = get_config('auth_mo_login');
 
     if ($relaystate == 'testValidate') {
-        mo_login_checkmapping($attrs, $relaystate, $sessionindex);
+        auth_mo_login_checkmapping($attrs, $relaystate, $sessionindex);
 
     } else {
         // This part doing login in moodle via reading, assigning and updating saml user attributes.
@@ -158,7 +156,7 @@ if ( array_key_exists('SAMLResponse', $_POST) && !empty($_POST['SAMLResponse']))
             // Work of saml response is done here.
             if (isset($wantsurl)) {
                 // Need to set wantsurl, where we redirect.
-                $urltogo = clean_param($wantsurl, PARAM_URL);
+                $urltogo = $wantsurl;
             } else {
                 $urltogo = $CFG->wwwroot.'/';
             }

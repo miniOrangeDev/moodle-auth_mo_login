@@ -15,16 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Contains version related information.
+ * This library is miniOrange Authentication Service.
  *
- * @copyright   2017  miniOrange
- * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL v3 or later, see license.txt
- * @package     auth_mo_login
+ * @copyright 2017  miniOrange
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU/GPL v3 or later, see license.txt
  */
+namespace auth_mo_login\privacy;
 defined('MOODLE_INTERNAL') || die();
-$plugin->requires = 2016052300;   // Requires Moodle 3.1 or later.
-$plugin->release = 'v1.0-r6';
-$plugin->component = 'auth_mo_login';
-$plugin->version = 2019090901;    // YYYYMMDDXX.
-$plugin->cron = 0;     // Time in sec.
-$plugin->maturity = MATURITY_STABLE;
+/**
+ * Auth external functions
+ *
+ * @copyright 2017 miniOrange
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package auth_mo_login
+ */
+class provider implements \core_privacy\local\metadata\null_provider {
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata';
+    }
+}

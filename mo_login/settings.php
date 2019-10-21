@@ -30,26 +30,24 @@ if ($ADMIN->fulltree) {
         ''));
 
 
-    $html = '<table border="1"
-            style="background-color:#FFFFFF; border:1px solid #CCCCCC; padding:0px 0px 0px 10px;
-            margin:2px; border-collapse: collapse; width:98%">
+    $html = '<table border="1" id="mo_table">
                 <tr>
-                    <td style="width:40%; padding: 15px;"><b>SP-EntityID / Issuer</b></td>
-                                            <td style="width:60%; padding: 15px;">' . $CFG->wwwroot . '</td>
+                    <td ><b>SP-EntityID / Issuer</b></td>
+                                            <td>' . $CFG->wwwroot . '</td>
                 </tr>
                 <tr>
-                    <td style="width:40%; padding: 15px;"><b>ACS (AssertionConsumerService) URL</b></td>
-                                                <td style="width:60%;  padding: 15px;">
+                    <td><b>ACS (AssertionConsumerService) URL</b></td>
+                                                <td >
                                                 ' . $CFG->wwwroot . "/auth/mo_login/index.php" . '</td>
                 </tr>
                 <tr>
-                    <td style="width:40%; padding: 15px;"><b>Audience URI</b></td>
-                                            <td style="width:60%; padding: 15px;">
+                    <td><b>Audience URI</b></td>
+                                            <td >
                                             ' . $CFG->wwwroot . '</td>
                 </tr>
                 <tr>
-                    <td style="width:40%; padding: 15px;"><b>NameID format</b></td>
-                                            <td style="width:60%; padding: 15px;">
+                    <td><b>NameID format</b></td>
+                                            <td>
                                             urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</td>
                 </tr>
             </table>';

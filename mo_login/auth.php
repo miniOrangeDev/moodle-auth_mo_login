@@ -95,10 +95,11 @@ class auth_plugin_mo_login extends auth_plugin_base {
         $user['username'] = $mosamlattributes['NameID'];
         foreach (self::ATTRIBUTES as $attribute) {
             $attributevalue = $pluginconfig->{$attribute};
-
             if ($attributevalue && array_key_exists($attributevalue, $mosamlattributes)) {
-                if (is_array($mosamlattributes[$attributevalue]) && count($mosamlattributes[$attributevalue]) == 1) {
+                if ((is_array($mosamlattributes[$attributevalue]) && count($mosamlattributes[$attributevalue]) == 1)) {
                     $user[$attribute] = $mosamlattributes[$attributevalue][0];
+                } else if (!is_array($mosamlattributes[$attributevalue])) {
+                    $user[$attribute] = $mosamlattributes[$attributevalue];
                 }
             }
         }
@@ -228,8 +229,11 @@ class auth_plugin_mo_login extends auth_plugin_base {
         global $CFG;
         $CFG->nolastloggedin = true;
 
+        $getsamlsso = array_key_exists("saml_sso", $_GET) ? required_param('saml_sso', PARAM_RAW) : "";
+        $postusername = array_key_exists("username", $_GET) ? required_param('username', PARAM_RAW) : "";
+        $postpassword = array_key_exists("password", $_GET) ? required_param('password',  PARAM_RAW) : "";
         if (array_key_exists('enablebackdoor', $this->config) && $this->config->enablebackdoor === 'true') {
-            if (!isset($_GET['saml_sso']) && (empty($_POST['username']) && empty($_POST['password']))) {
+            if (!isset($getsamlsso) && ($postusername) && empty($postpassword)) {
                 $initssourl = $CFG->wwwroot.'/auth/mo_login/index.php';
                 redirect($initssourl);
             }
@@ -249,7 +253,7 @@ class auth_plugin_mo_login extends auth_plugin_base {
      * @throws moodle_exception
      */
     public function logoutpage_hook() {
-        global $SESSION, $CFG;
+        global  $CFG;
         $logouturl = $CFG->wwwroot.'/login/index.php?saml_sso=false';
         require_logout();
         set_moodle_cookie('nobody');
